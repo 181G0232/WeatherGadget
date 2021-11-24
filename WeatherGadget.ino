@@ -16,6 +16,8 @@ String region = "Monterrey";
 Gadget gadget;
 Clock gclock;
 
+WiFiServer server(80);
+
 void printWeather(const Weather& weather)
 {
     Serial.print("Estado: ");
@@ -56,10 +58,8 @@ void setup()
     gadget.setRegion(region);
 }
 
-int LED_aparpadear = 5;  
+void updateGadget() {
 
-void loop()
-{
     // Actualizar cada 1 minuto
     if(gclock.elapsed() > (1 * MINUTE)) {
         gclock.restart();
@@ -71,6 +71,24 @@ void loop()
     }
     // Dibujar OLED
     gadget.drawOLED();
-    //
+
+}
+
+void loop()
+{
+    Serial.print("To test put on web server: http://");
+    Serial.print(WiFi.localIP());
+    Serial.println("/");
+    WiFiClient client = server.available();
+    if(client) {
+        String message = "";
+        while(client.available()) {
+            char c = client.read();
+            message += c;
+            Serial.print(c);
+        }
+        Serial.println(c);
+    }
+    updateGadget();
     delay(100);
 }
