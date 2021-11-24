@@ -60,8 +60,8 @@ void setup()
 
 void updateGadget() {
 
-    // Actualizar cada 1 minuto
-    if(gclock.elapsed() > (1 * MINUTE)) {
+    // Actualizar cada 5 minuto
+    if(gclock.elapsed() > (5 * MINUTE)) {
         gclock.restart();
         //
         gadget.updateWeather();
@@ -81,22 +81,24 @@ void loop()
     Serial.println("/");
     WiFiClient client = server.available();
     if(client) {
-        String message = "";
-        while(client.available()) {
-            char c = client.read();
-            message += c;
+        while(client.connected()) {
+            String message = "";
+            while(client.available()) {
+                char c = client.read();
+                message += c;
+            }
+            Serial.println(message);
+            //
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/plain");
+            client.println("Connection: close");
+            client.println();
+            client.println("Works");
+            client.println();
+            //
+            client.stop();
         }
-        Serial.println(message);
-        //
-        client.println("HTTP/1.1 200 OK");
-        client.println("Content-type:text/plain");
-        client.println("Connection: close");
-        client.println();
-        client.println("Works");
-        client.println();
-        //
-        client.stop();
     }
     updateGadget();
-    delay(100);
+    delay(1000);
 }
