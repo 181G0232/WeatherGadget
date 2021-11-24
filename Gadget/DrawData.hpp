@@ -176,7 +176,7 @@ void drawOLED(Adafruit_SSD1306& display, const Weather& weather, const DateTime&
     
     display.println(datetime.time);
 
-    if (weather.description == "bloken clouds" || weather.description == "overcast clouds"){
+    if (weather.description == "broken clouds" || weather.description == "overcast clouds"){
         display.drawBitmap(92, 28, bloken_clouds_raw, 32, 32, 1);
     }
     else if(weather.description == "clear sky") 
