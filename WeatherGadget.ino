@@ -85,9 +85,17 @@ void loop()
         while(client.available()) {
             char c = client.read();
             message += c;
-            Serial.print(c);
         }
-        Serial.println(c);
+        Serial.println(message);
+        //
+        client.println("HTTP/1.1 200 OK");
+        client.println("Content-type:text/plain");
+        client.println("Connection: close");
+        client.println();
+        client.println("Works");
+        client.println();
+        //
+        client.stop();
     }
     updateGadget();
     delay(100);
