@@ -228,7 +228,8 @@ void drawOLED(Adafruit_SSD1306& display, const Weather& weather, const DateTime&
     }
     else
     {
-        Serial.print("Estado no manejado del clima: ");
+        Serial.println("Estado no manejado del clima: ");
+        Serial.println(weather.state);
         Serial.println(weather.description);
         return;
     }
