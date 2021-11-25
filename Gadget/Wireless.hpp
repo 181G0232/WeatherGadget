@@ -6,17 +6,16 @@
 
 const char *APSSID = "ESP32_AP";
 const char *APPASS = nullptr;
-IPAddress STAIPAddress;
+IPAddress APIPAddress;
 
 const char *STASSID = "INFINITUM97B6";
 const char *STAPASS = "6plpze1kuK";
-IPAddress APIPAddress;
+IPAddress STAIPAddress;
 
-void initNet()
+void initWireless()
 {
-    //
     Serial.println("Inicializando WiFi...");
-    WiFi.mode(WIFI_MODE_APSTA);
+    WiFi.mode(WIFI_MODE_STA);
     //
     Serial.println("Inicializando AP...");
     APIPAddress = WiFi.softAP(APSSID, APPASS, 7, false, 1);

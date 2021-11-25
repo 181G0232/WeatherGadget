@@ -1,36 +1,29 @@
 #include <Arduino.h>
 #include "Gadget/Wireless.hpp"
-#include "Gadget/Weather.hpp"
-#include "Gadget/DateTime.hpp"
+#include "Gadget/HttpSever.hpp"
 
-Weather weather;
-DateTime datetime;
+HttpServer server;
 
-void setup() {
-    Serial.begin(115200);
-    Serial.println("Inicializando ESP32...");
-    initNet();
+void onHttpRequest(HttpRequest& request, HttpResponse& response) {
+    response.status = "200";
+    response.contentType = "application/json";
+    response.content = "\"WORKS\"";
 }
 
-void loop() {
+void setup()
+{
+    Serial.begin(115200);
+    Serial.println("Inicializando ESP32...");
+    initWireless();
     //
-    Serial.println("Obteniendo clima desde API...");
-    weather.updateByApi();
-    Serial.print("Clima: ");
-    Serial.println(weather.main);
-    Serial.print("Descripcion: ");
-    Serial.println(weather.description);
-    Serial.print("Temperatura: ");
-    Serial.println(weather.temperature);
+    Serial.print("Ingresa en el navegador: ");
+    Serial.print(STAIPAddress);
     //
-    Serial.println("Obteniendo fecha y hora desde API...");
-    datetime.updateByApi();
-    Serial.print("Fecha: ");
-    Serial.println(datetime.date);
-    Serial.print("Hora: ");
-    Serial.println(datetime.time);
-    Serial.print("Es de dia: ");
-    Serial.println(datetime.isDay);
-    //
-    delay(1000);
+    server.start(onHttpRequest);
+}
+
+void loop()
+{
+    server.process();
+    delay(100);
 }
