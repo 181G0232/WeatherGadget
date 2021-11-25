@@ -1,104 +1,36 @@
 #include <Arduino.h>
-#include "Gadget/App.hpp"
-#include "Gadget/Clock.hpp"
+#include "Gadget/Wireless.hpp"
+#include "Gadget/Weather.hpp"
+#include "Gadget/DateTime.hpp"
 
-typedef unsigned int size_t;
+Weather weather;
+DateTime datetime;
 
-String ssid = "INFINITUM97B6";
-String pass = "6plpze1kuK";
-
-String location = "Sabinas,MX";
-String apiKey = "4b6e7642b0809e91ae7b7b28ec0632eb";
-
-String zone = "America";
-String region = "Monterrey";
-
-Gadget gadget;
-Clock gclock;
-
-WiFiServer server(80);
-
-void printWeather(const Weather& weather)
-{
-    Serial.print("Estado: ");
-    Serial.println(weather.state);
-    Serial.print("Descripcion: ");
-    Serial.println(weather.description);
-    Serial.print("Temperartura: ");
-    Serial.println(weather.temp);
-    Serial.print("Temperartura minima: ");
-    Serial.println(weather.tempMin);
-    Serial.print("Temperartura maxima: ");
-    Serial.println(weather.tempMax);
-    Serial.print("Presion: ");
-    Serial.println(weather.pressure);
-    Serial.print("Humedad: ");
-    Serial.println(weather.humidity);
-    Serial.print("Velocidad del viento: ");
-    Serial.println(weather.windSpeed);
+void setup() {
+    Serial.begin(115200);
+    Serial.println("Inicializando ESP32...");
+    initNet();
 }
 
-void printDateTime(const DateTime& datetime)
-{
+void loop() {
+    //
+    Serial.println("Obteniendo clima desde API...");
+    weather.updateByApi();
+    Serial.print("Clima: ");
+    Serial.println(weather.main);
+    Serial.print("Descripcion: ");
+    Serial.println(weather.description);
+    Serial.print("Temperatura: ");
+    Serial.println(weather.temperature);
+    //
+    Serial.println("Obteniendo fecha y hora desde API...");
+    datetime.updateByApi();
     Serial.print("Fecha: ");
     Serial.println(datetime.date);
     Serial.print("Hora: ");
     Serial.println(datetime.time);
-}
-
-void setup()
-{
-    Serial.begin(115200);
-    initWiFi(ssid, pass);
-    gadget.initDisplay();
+    Serial.print("Es de dia: ");
+    Serial.println(datetime.isDay);
     //
-    gadget.setLocation(location);
-    gadget.setApiKey(apiKey);
-    gadget.setZone(zone);
-    gadget.setRegion(region);
-}
-
-void updateGadget() {
-
-    // Actualizar cada 5 minuto
-    if(gclock.elapsed() > (5 * MINUTE)) {
-        gclock.restart();
-        //
-        gadget.updateWeather();
-        printWeather(gadget.wdata);
-        gadget.updateDateTime();
-        printDateTime(gadget.ddata);
-    }
-    // Dibujar OLED
-    gadget.drawOLED();
-
-}
-
-void loop()
-{
-    Serial.print("To test put on web server: http://");
-    Serial.print(WiFi.localIP());
-    Serial.println("/");
-    WiFiClient client = server.available();
-    if(client) {
-        while(client.connected()) {
-            String message = "";
-            while(client.available()) {
-                char c = client.read();
-                message += c;
-            }
-            Serial.println(message);
-            //
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/plain");
-            client.println("Connection: close");
-            client.println();
-            client.println("Works");
-            client.println();
-            //
-            client.stop();
-        }
-    }
-    updateGadget();
     delay(1000);
 }
