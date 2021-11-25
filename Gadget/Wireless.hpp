@@ -15,7 +15,7 @@ IPAddress STAIPAddress;
 void initWireless()
 {
     Serial.println("Inicializando WiFi...");
-    WiFi.mode(WIFI_MODE_STA);
+    WiFi.mode(WIFI_MODE_APSTA);
     //
     Serial.println("Inicializando AP...");
     APIPAddress = WiFi.softAP(APSSID, APPASS, 7, false, 1);
