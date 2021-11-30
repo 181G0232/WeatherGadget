@@ -3,10 +3,10 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include "HttpRequest.hpp"
-#include "HttpResponse.hpp"
+#include "HttpGetRequest.hpp"
+#include "HttpGetResponse.hpp"
 
-typedef void(*HttpHandler)(const HttpRequest& request, HttpResponse& response);
+typedef void(*HttpHandler)(const HttpGetRequest& request, HttpGetResponse& response);
 
 class HttpServer
 {
@@ -17,19 +17,16 @@ public:
     unsigned long previousTime;
     unsigned long timeoutTime;
 
-    HttpRequest* requests;
-    size_t requests_num;
-    HttpResponse response;
+    HttpGetRequest request;
+    HttpGetResponse response;
     HttpHandler httphandler;
 
     HttpServer() : server(80), currentTime(millis()), previousTime(0), timeoutTime(2000)
     {
     }
 
-    void start(HttpHandler httph, HttpRequest* requestsp, size_t requests_n) {
-        httphandler = httph;
-        requests = requestsp;
-        requests_num = requests_n;
+    void start(HttpHandler httphandler) {
+        this->httphandler = httphandler;
         server.begin();
     }
 
@@ -48,52 +45,29 @@ public:
             previousTime = currentTime;
             String requ;
             requ.reserve(1024);
-            String currentLine;
-            currentLine.reserve(1024);
             while (client.connected() && currentTime - previousTime <= timeoutTime)
             { 
                 currentTime = millis();
                 if (client.available())
                 {                           
                     char c = client.read();
-                    // Serial.write(c);        
+                    Serial.write(c);        
                     requ += c;
                     if (c == '\n')
                     { 
-                        if (currentLine.length() == 0)
-                        {
-                            bool matched = false;
-                            for(size_t i = 0; i < requests_num; i++) {
-                                if(requests[i].match(requ)) {
-                                    httphandler(requests[i], response);
-                                    //
-                                    String resp;
-                                    resp.reserve(1024);
-                                    response.make(resp);
-                                    //
-                                    client.println(resp);
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            //
-                            if(matched) {
-                                Serial.println("Se ha procesado el REQUEST. Una respuesta debe haber sido recibida por el cliente");
-                            }
-                            else {
-                                Serial.println("No se ha procesado el REQUEST. Ninguna respuesta fue enviada");
-                            }
-                            //
-                            break;
-                        }
-                        else
-                        { 
-                            currentLine.clear();
-                        }
-                    }
-                    else if (c != '\r')
-                    {                    
-                        currentLine += c;
+                        requ.trim();
+                        request.clear();
+                        request.readFrom(requ);
+                        //
+                        String resp;
+                        resp.reserve(1024);
+                        response.clear();
+                        //
+                        httphandler(request, response);
+                        response.writeTo(resp);
+                        //
+                        client.println(resp);
+                        break;
                     }
                 }
             }

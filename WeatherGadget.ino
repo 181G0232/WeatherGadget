@@ -4,16 +4,11 @@
 
 HttpServer server;
 
-HttpRequest requests[] = {
-    { "GET", "/SomeAction", " " },
-    { "POST", "/SomeAction", "application/json" },
-};
-
-void onHttp(const HttpRequest& request, HttpResponse& response) {
+void onHttp(const HttpGetRequest& request, HttpGetResponse& response) {
     response.status = "200";
     response.contentType = "text/plain";
     response.content = "WORKS:\n";
-    response.content += request.method + request.path + request.contentType + request.content;
+    response.content += request.method + request.path + request.query;
 }
 
 void setup()
@@ -26,7 +21,7 @@ void setup()
     Serial.print(STAIPAddress);
     Serial.println("/SomeAction");
     //
-    server.start(onHttp, requests, 2);
+    server.start(onHttp);
 }
 
 void loop()
