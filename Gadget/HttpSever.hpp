@@ -6,7 +6,7 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 
-typedef void(*HttpHandler)(HttpRequest& request, HttpResponse& response);
+typedef void(*HttpHandler)(const HttpRequest& request, HttpResponse& response);
 
 class HttpServer
 {
@@ -17,7 +17,8 @@ public:
     unsigned long previousTime;
     unsigned long timeoutTime;
 
-    HttpRequest request;
+    HttpRequest* requests;
+    size_t requests_num;
     HttpResponse response;
     HttpHandler httphandler;
 
@@ -25,8 +26,10 @@ public:
     {
     }
 
-    void start(HttpHandler httph) {
+    void start(HttpHandler httph, HttpRequest* requestsp, size_t requests_n) {
         httphandler = httph;
+        requests = requestsp;
+        requests_num = requests_n;
         server.begin();
     }
 
@@ -43,8 +46,8 @@ public:
             Serial.println("Nuevo cliente");
             currentTime = millis();
             previousTime = currentTime;
-            String header;
-            header.reserve(1024);
+            String requ;
+            requ.reserve(1024);
             String currentLine;
             currentLine.reserve(1024);
             while (client.connected() && currentTime - previousTime <= timeoutTime)
@@ -53,21 +56,34 @@ public:
                 if (client.available())
                 {                           
                     char c = client.read();
-                    Serial.write(c);        
-                    header += c;
+                    // Serial.write(c);        
+                    requ += c;
                     if (c == '\n')
                     { 
                         if (currentLine.length() == 0)
                         {
-                            
-                            String resp;
-                            resp.reserve(1024);
-                            request.updateByString(header);
-                            response.clear();
-                            httphandler(request, response);
-                            response.updateToString(resp);
-                            client.println(resp);
-
+                            bool matched = false;
+                            for(size_t i = 0; i < requests_num; i++) {
+                                if(requests[i].match(requ)) {
+                                    httphandler(requests[i], response);
+                                    //
+                                    String resp;
+                                    resp.reserve(1024);
+                                    response.make(resp);
+                                    //
+                                    client.println(resp);
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                            //
+                            if(matched) {
+                                Serial.println("Se ha procesado el REQUEST. Una respuesta debe haber sido recibida por el cliente");
+                            }
+                            else {
+                                Serial.println("No se ha procesado el REQUEST. Ninguna respuesta fue enviada");
+                            }
+                            //
                             break;
                         }
                         else
@@ -81,7 +97,7 @@ public:
                     }
                 }
             }
-            header.clear();
+            requ.clear();
             client.stop();
             Serial.println("Cliente desconectado");
         }

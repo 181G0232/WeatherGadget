@@ -23,10 +23,10 @@ public:
         content.clear();
     }
 
-    void updateToString(String& httpresponse) {
+    void make(String& httpresponse) {
         /*
         client.println("HTTP/1.1 200 OK");
-        client.println("Content-type:application/json");
+        client.println("Content-Type:application/json");
         client.println("Connection: close");
 
         client.println();
@@ -37,8 +37,8 @@ public:
        httpresponse += "Content-Type: " + contentType + "\n";
        httpresponse += "Connection: close\n";
        httpresponse += "\n" + content + "\n";
-       Serial.println("Response to send: ");
-       Serial.println(httpresponse);
+       // Serial.println("Response to send: ");
+       // Serial.println(httpresponse);
     }
 
 };
