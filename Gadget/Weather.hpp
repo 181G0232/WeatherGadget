@@ -42,8 +42,8 @@ public:
         if(WiFi.status() == WL_CONNECTED)
         {
             String json = httpGETRequest(WeatherUrl);
-            Serial.print("Json content: ");
-            Serial.println(json);
+            // Serial.print("Json content: ");
+            // Serial.println(json);
             updateByJson(json);
         }
     }

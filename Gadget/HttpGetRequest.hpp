@@ -2,24 +2,26 @@
 #define GADGET_HTTPGETREQUEST_HPP
 
 #include <Arduino.h>
+#include "QueryString.hpp"
 
 class HttpGetRequest {
 
 public:
     String method;
     String path;
-    String query;
+    String rawquery;
+    QueryString query;
 
     HttpGetRequest() {
         method.reserve(8);
         path.reserve(32);
-        query.reserve(64);
+        rawquery.reserve(64);
     }
 
     void clear() {
         method.clear();
         path.clear();
-        query.clear();
+        rawquery.clear();
     }
 
     void readFrom(String& request) {
@@ -40,10 +42,10 @@ public:
         ei = request.indexOf("?");
         if(ei >= 0) {
             path = request.substring(0, ei);
-            query = request.substring(ei);
+            rawquery = request.substring(ei);
         } else {
             path = request;
-            query.clear();
+            rawquery.clear();
         }
         //
         Serial.print("Method analizado: ");
@@ -51,7 +53,9 @@ public:
         Serial.print("Path analizado: ");
         Serial.println(path);
         Serial.print("Query analizado: ");
-        Serial.println(query);
+        Serial.println(rawquery);
+        //
+        query.parse(rawquery);
     }
 
 };

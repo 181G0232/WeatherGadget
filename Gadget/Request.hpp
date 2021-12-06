@@ -17,14 +17,14 @@ String httpGETRequest(const char* url)
 
     if (httpResponseCode > 0)
     {
-        Serial.print("HTTP GET exitoso. Codigo: ");
-        Serial.println(httpResponseCode);
+        // Serial.print("HTTP GET exitoso. Codigo: ");
+        // Serial.println(httpResponseCode);
         payload = http.getString();
     }
     else
     {
-        Serial.print("HTTP GET fallido. Codigo: ");
-        Serial.println(httpResponseCode);
+        // Serial.print("HTTP GET fallido. Codigo: ");
+        // Serial.println(httpResponseCode);
         payload = "{}";
     }
 
