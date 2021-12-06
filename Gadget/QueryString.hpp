@@ -22,16 +22,16 @@ public:
                 index++;
             }
             key = query.substring(start, index);
-            Serial.print("Key found: ");
-            Serial.println(key);
+            // Serial.print("Key found: ");
+            // Serial.println(key);
             //
             index++;
             start = index;
             while(query[index] != '&' && query[index] != '\0') {
                 index++;
             }
-            Serial.print("Value found: ");
-            Serial.println(value);
+            // Serial.print("Value found: ");
+            // Serial.println(value);
             value = query.substring(start, index);
             return index;
         }
